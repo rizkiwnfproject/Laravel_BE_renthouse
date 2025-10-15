@@ -12,6 +12,17 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
+
+    public function index()
+    {
+        $transaction = Transaction::with('listing')->whereUserId(auth()->id())->paginate();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get all my transaction',
+            'data' => $transaction,
+        ]);
+    }
     public function _fullyBookedChecker(Store $request)
     {
         $listing = Listing::find($request->listing_id);
@@ -42,7 +53,6 @@ class TransactionController extends Controller
         return true;
     }
 
-
     public function isAvailable(Store $request)
     {
         $this->_fullyBookedChecker($request);
@@ -53,7 +63,8 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function store(Store $request){
+    public function store(Store $request)
+    {
         $this->_fullyBookedChecker($request);
 
         $transaction = Transaction::create([
@@ -68,6 +79,25 @@ class TransactionController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'New transaction created',
+            'data' => $transaction,
+        ]);
+    }
+
+    public function show(Transaction $transaction): JsonResponse
+    {
+
+        if ($transaction->user_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $transaction->Listing;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Get all listings',
             'data' => $transaction,
         ]);
     }
