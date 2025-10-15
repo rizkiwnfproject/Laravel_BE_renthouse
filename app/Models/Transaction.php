@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Listing;
+use App\Models\User;
 
 class Transaction extends Model
 {
@@ -23,7 +25,7 @@ class Transaction extends Model
         'status',
     ];
 
-    public function setListingsIdAttribute($value)
+    public function setListingIdAttribute($value)
     {
         $listing = Listing::find($value);
         $totalDays = Carbon::createFromDate($this->attributes['start_date'])->diffInDays($this->attributes['end_date']) + 1;
@@ -37,11 +39,13 @@ class Transaction extends Model
         $this->attributes['total_price'] = $totalPrice + $fee;
     }
 
-    public function user(): BelongsTo{
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function listing(): BelongsTo{
+    public function listing(): BelongsTo
+    {
         return $this->belongsTo(Listing::class);
     }
 }
